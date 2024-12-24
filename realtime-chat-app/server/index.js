@@ -20,6 +20,21 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("ユーザーと接続しました！" + "socket-id : " + socket.id);
 
+  //ルームに入る時のソケット設置
+  //　受け取るのでon
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`ユーザーID:${socket.id}が${data}に参加しました！`);
+  });
+
+  //チャット専用ソケットの設定
+  socket.on("send_message", (data) => {
+    console.log(data);
+
+    //クライアントに返すソケット通信（room番号を共有している人のみに返す）
+    socket.to(data.room).emit("receive_message", data);
+  });
+
   socket.on("disconnect", () => {
     console.log("ユーザーとの接続が切れました！" + "socket-id : " + socket.id);
   });
